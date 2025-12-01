@@ -202,6 +202,11 @@ main() {
       tmux set-option -g status-right-length 250
       script="#($current_dir/compact_alt.sh)"
 
+    elif [ $plugin = "cwa-weather" ]; then
+      IFS=' ' read -r -a colors  <<< $(get_tmux_option "@dracula-cwa-weather-colors" "green dark_gray")
+      tmux set-option -g status-right-length 250
+      script="#($current_dir/cwa_weather.sh)"
+
     elif [ $plugin = "cwd" ]; then
       IFS=' ' read -r -a colors  <<< $(get_tmux_option "@dracula-cwd-colors" "dark_gray white")
       tmux set-option -g status-right-length 250
