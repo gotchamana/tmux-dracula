@@ -31,7 +31,7 @@ get_cache_directory() {
 
 get_latest_cache() {
     local dir
-    dir=$(get_cache_directory)
+    dir="$(get_cache_directory)"
 
     local cache
 
@@ -92,7 +92,7 @@ call_api() {
             return 1
         fi
 
-        cache=$(printf "%s/%(%Y%m%d%H)T.json" "$(get_cache_directory)")
+        cache="$(printf "%s/%(%Y%m%d%H)T.json" "$(get_cache_directory)")"
 
         if ! curl \
             --fail \
