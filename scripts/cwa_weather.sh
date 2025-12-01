@@ -3,50 +3,6 @@
 api_key=
 location_name=臺北市
 
-weather_icons=(
-    [1]="󰖙"
-    [2]="󰖕"
-    [3]="󰖕"
-    [4]="󰖕"
-    [5]="󰖐"
-    [6]="󰖐"
-    [7]="󰖐"
-    [8]="󰼳"
-    [9]="󰖗"
-    [10]="󰖗"
-    [11]="󰖗"
-    [12]="󰖗"
-    [13]="󰖗"
-    [14]="󰖖"
-    [15]="󰙾"
-    [16]="󰙾"
-    [17]="󰙾"
-    [18]="󰙾"
-    [19]="󰼳"
-    [20]="󰼳"
-    [21]="󰙾"
-    [22]="󰙾"
-    [23]="󰙿"
-    [24]="󰖑"
-    [25]="󰖑"
-    [26]="󰖑"
-    [27]="󰖑"
-    [28]="󰖑"
-    [29]="󰼳"
-    [30]="󰖗"
-    [31]="󰖑"
-    [32]="󰖑"
-    [33]="󰼲"
-    [34]="󰙾"
-    [35]="󰙾"
-    [36]="󰙾"
-    [37]="󰙿"
-    [38]="󰼳"
-    [39]="󰖗"
-    [41]="󰙾"
-    [42]="󰖘"
-)
-
 check_dependencies() {
     local code
     code=0
@@ -90,23 +46,27 @@ is_valid_cache() {
     local cache
     cache="$1"
 
-    [[ -z "$cache" || ! "$cache" =~ [0-9]{10}\.json || ! -f "$cache" ]] && return 1
+    local file_name
+    file_name=${cache##*/}
+
+    [[ -z "$cache" || ! "$file_name" =~ [0-9]{10}\.json || ! -f "$cache" ]] && return 1
 
     # yyyyMMddHH
     local file_date_hour
-    file_date_hour=${cache%%.*}
+    file_date_hour=${file_name%%.*}
 
     local file_date
     file_date="${file_date_hour:0:8}"
 
     local file_hour
     file_hour="${file_date_hour: -2:2}"
+    file_hour=${file_hour#0}
 
     local date
     date="$(printf "%(%Y%m%d)T")"
 
     local hour
-    hour="$(printf "%(%H)T")"
+    hour="$(printf "%(%k)T")"
 
     [[ "$date" > "$file_date" || $((hour - file_hour)) -ge 3 ]] && return 1
 }
@@ -128,7 +88,7 @@ call_api() {
             --silent \
             --header "Accept: application/json" \
             --header "Authorization: $api_key" \
-            --url-query locationName=$location_name \
+            --url-query locationName="$location_name" \
             --url-query elementName=Wx \
             --url-query elementName=MinT \
             --url-query elementName=MaxT \
@@ -163,6 +123,61 @@ get_weather_code() {
     printf "%s" "$elements" | jq '.[] | if .elementName == "Wx" then .time[0].parameter.parameterValue else empty end | tonumber'
 }
 
+get_weather_icon() {
+    local code
+    code="$1"
+
+    local weather_icons
+    weather_icons=(
+        [1]="󰖙"
+        [2]="󰖕"
+        [3]="󰖕"
+        [4]="󰖕"
+        [5]="󰖐"
+        [6]="󰖐"
+        [7]="󰖐"
+        [8]="󰼳"
+        [9]="󰖗"
+        [10]="󰖗"
+        [11]="󰖗"
+        [12]="󰖗"
+        [13]="󰖗"
+        [14]="󰖖"
+        [15]="󰙾"
+        [16]="󰙾"
+        [17]="󰙾"
+        [18]="󰙾"
+        [19]="󰼳"
+        [20]="󰼳"
+        [21]="󰙾"
+        [22]="󰙾"
+        [23]="󰙿"
+        [24]="󰖑"
+        [25]="󰖑"
+        [26]="󰖑"
+        [27]="󰖑"
+        [28]="󰖑"
+        [29]="󰼳"
+        [30]="󰖗"
+        [31]="󰖑"
+        [32]="󰖑"
+        [33]="󰼲"
+        [34]="󰙾"
+        [35]="󰙾"
+        [36]="󰙾"
+        [37]="󰙿"
+        [38]="󰼳"
+        [39]="󰖗"
+        [41]="󰙾"
+        [42]="󰖘"
+    )
+
+    local icon
+    icon="${weather_icons[code]}"
+
+    printf "%s" "${icon:-N/A}"
+}
+
 get_temperature() {
     local elements
     elements="$1"
@@ -195,8 +210,9 @@ fi
 
 weather_elements="$(printf "%s" "$response" | jq '.records.location[0].weatherElement')" || exit 1
 weather_code="$(get_weather_code "$weather_elements")" || exit 1
+weather_icon="$(get_weather_icon "$weather_code")"
 max_temp="$(get_temperature "$weather_elements" "max")" || exit 1
 min_temp="$(get_temperature "$weather_elements" "min")" || exit 1
 avg_temp=$(( (min_temp + max_temp) / 2 ))
 
-printf "%s %d°C" "${weather_icons[$weather_code]}" "$avg_temp"
+printf "%s %d°C" "$weather_icon" "$avg_temp"
