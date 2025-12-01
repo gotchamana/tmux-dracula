@@ -81,7 +81,7 @@ call_api() {
     local cache
     cache="$(get_latest_cache)"
 
-    if [[ -n "$cache" && ! $(is_valid_cache "$cache") ]]; then
+    if [[ -n "$cache" ]] && ! is_valid_cache "$cache"; then
         rm "$cache"
         cache=""
     fi
