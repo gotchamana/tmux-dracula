@@ -30,12 +30,15 @@ get_cache_directory() {
 }
 
 get_latest_cache() {
+    local location
+    location="$1"
+
     local dir
     dir="$(get_cache_directory)"
 
     local cache
 
-    for file in "$dir"/*.json; do
+    for file in "${dir}/${location}-"*.json; do
         [[ -f "$file" ]] && cache="$file"
     done
 
@@ -49,11 +52,12 @@ is_valid_cache() {
     local file_name
     file_name=${cache##*/}
 
-    [[ -z "$cache" || ! "$file_name" =~ [0-9]{10}\.json || ! -f "$cache" ]] && return 1
+    [[ -z "$cache" || ! "$file_name" =~ .+-[0-9]{10}\.json || ! -f "$cache" ]] && return 1
 
     # yyyyMMddHH
     local file_date_hour
     file_date_hour=${file_name%%.*}
+    file_date_hour=${file_date_hour##*-}
 
     local file_date
     file_date="${file_date_hour:0:8}"
@@ -68,7 +72,7 @@ is_valid_cache() {
     local hour
     hour="$(printf "%(%k)T")"
 
-    [[ "$date" > "$file_date" || $((hour - file_hour)) -ge 3 ]] && return 1
+    [[ "$date" > "$file_date" || $((hour - file_hour)) -ge 3 ]] && return 1 || return 0
 }
 
 call_api() {
@@ -92,7 +96,7 @@ call_api() {
             return 1
         fi
 
-        cache="$(printf "%s/%(%Y%m%d%H)T.json" "$(get_cache_directory)")"
+        cache="$(printf "%s/%s-%(%Y%m%d%H)T.json" "$(get_cache_directory)" "$location_name")"
 
         if ! curl \
             --fail \
