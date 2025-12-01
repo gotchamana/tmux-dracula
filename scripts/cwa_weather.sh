@@ -87,6 +87,11 @@ call_api() {
     fi
 
     if [[ -z "$cache" ]]; then
+        if [[ -z "$api_key" ]]; then
+            printf "No CWA weather api key\n" >&2
+            return 1
+        fi
+
         cache=$(printf "%s/%(%Y%m%d%H)T.json" "$(get_cache_directory)")
 
         if ! curl \
