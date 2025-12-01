@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 
-api_key=
-location_name=臺北市
+current_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$current_dir"/utils.sh
 
 check_dependencies() {
     local code
@@ -72,6 +72,12 @@ is_valid_cache() {
 }
 
 call_api() {
+    local api_key
+    api_key="$(get_tmux_option "@dracula-cwa-weather-api-key" "")"
+
+    local location_name
+    location_name="$(get_tmux_option "@dracula-cwa-weather-location" "臺北市")"
+
     local cache
     cache="$(get_latest_cache)"
 
