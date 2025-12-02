@@ -3,6 +3,51 @@
 current_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$current_dir"/utils.sh
 
+get_log_directory() {
+    local dir
+    dir="${XDG_STATE_HOME:-$HOME/.local/state}/tmux/dracula"
+
+    [[ ! -d "$dir" ]] && mkdir -p "$dir"
+
+    printf "%s" "$dir"
+}
+
+log() {
+    local level
+    level="$1"
+
+    local msg
+    msg="$2"
+
+    local current_level
+    current_level=1
+
+    local levels
+    levels=(
+        [1]=DEBUG
+        [2]=INFO
+        [3]=WARN
+        [4]=ERROR
+    )
+
+    local log_file
+    log_file="$(get_log_directory)/cwa-weather.log"
+
+    [[ $level -lt 1 || $level -gt 4 ]] && return 1
+
+    [[ $current_level -gt $level ]] && return 0
+
+    printf "%(%F %T)T [%5s] %s\n" "${levels["$level"]}" "$msg" >> "$log_file"
+}
+
+log_debug() {
+    log 1 "$1"
+}
+
+log_error() {
+    log 4 "$1"
+}
+
 check_dependencies() {
     local code
     code=0
