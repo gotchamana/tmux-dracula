@@ -22,7 +22,7 @@ check_dependencies() {
 
 get_cache_directory() {
     local dir
-    dir=${XDG_CACHE_HOME:-"$HOME/.cache"}/tmux/dracula/cwa-weather
+    dir="${XDG_CACHE_HOME:-$HOME/.cache}/tmux/dracula/cwa-weather"
 
     [[ ! -d "$dir" ]] && mkdir -p "$dir"
 
@@ -83,7 +83,7 @@ call_api() {
     location_name="$(get_tmux_option "@dracula-cwa-weather-location" "臺北市")"
 
     local cache
-    cache="$(get_latest_cache)"
+    cache="$(get_latest_cache "$location_name")"
 
     if [[ -n "$cache" ]] && ! is_valid_cache "$cache"; then
         rm "$cache"
