@@ -1,8 +1,5 @@
 #! /usr/bin/env bash
 
-current_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$current_dir"/utils.sh
-
 get_log_directory() {
     local dir
     dir="${XDG_STATE_HOME:-$HOME/.local/state}/tmux/dracula"
@@ -10,6 +7,19 @@ get_log_directory() {
     [[ ! -d "$dir" ]] && mkdir -p "$dir"
 
     printf "%s" "$dir"
+}
+
+get_log_file() {
+    printf "%s/cwa-weather-%(%Y%m%d)T.log" "$(get_log_directory)"
+}
+
+delete_old_log_files() {
+    local current_log_file
+    current_log_file="$(get_log_file)"
+
+    for file in "$(get_log_directory)"/cwa-weather-*.log; do
+        [[ -f "$file" && "$file" != "$current_log_file" ]] && rm "$file"
+    done
 }
 
 log() {
@@ -31,7 +41,7 @@ log() {
     )
 
     local log_file
-    log_file="$(get_log_directory)/cwa-weather.log"
+    log_file="$(get_log_file)"
 
     [[ $level -lt 1 || $level -gt 4 ]] && return 1
 
@@ -283,7 +293,12 @@ get_temperature() {
     printf "%s" "$elements" | jq '.[] | if .elementName == "'"$name"'" then .time[0].parameter.parameterName else empty end | tonumber'
 }
 
+current_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$current_dir"/utils.sh
+
 check_dependencies || exit 1
+
+delete_old_log_files
 
 response="$(call_api)" || exit 1
 
