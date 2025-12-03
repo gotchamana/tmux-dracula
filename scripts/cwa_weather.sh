@@ -144,7 +144,10 @@ is_valid_cache() {
     local hour
     hour="$(printf "%(%k)T")"
 
-    if [[ "$date" > "$file_date" || $((hour - file_hour)) -ge 3 ]]; then
+    local refresh_hours
+    refresh_hours="$(get_tmux_option "@dracula-cwa-weather-refresh-hours" 3)"
+
+    if [[ "$date" > "$file_date" || $((hour - file_hour)) -ge $refresh_hours ]]; then
         log_debug "Cache expired: $cache. Cache time: ${file_date} ${file_hour}h. Current time: ${date} ${hour}h."
         return 1
     else
