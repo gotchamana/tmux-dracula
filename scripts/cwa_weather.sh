@@ -180,9 +180,11 @@ call_api() {
 
         cache="$(printf "%s/%s-%(%Y%m%d%H)T.json" "$(get_cache_directory)" "$location_name")"
 
-        if ! curl \
+        local curl_output
+        curl_output="$(curl \
             --fail \
             --silent \
+            --show-error \
             --header "Accept: application/json" \
             --header "Authorization: $api_key" \
             --url-query locationName="$location_name" \
@@ -191,9 +193,12 @@ call_api() {
             --url-query elementName=MaxT \
             --url-query sort=time \
             --output "$cache" \
-            "https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-C0032-001"; then
+            "https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-C0032-001" 2>&1)"
 
-            log_error "curl failed with $? exit code"
+        local curl_exit_code="$?"
+
+        if [[ $curl_exit_code -ne 0 ]]; then
+            log_error "curl failed with $curl_exit_code exit code, error: $curl_output"
             return 1
         fi
     fi
