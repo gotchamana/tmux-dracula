@@ -75,6 +75,20 @@ check_dependencies() {
     return "$code"
 }
 
+get_api_key() {
+    local api_key
+    api_key="$(get_tmux_option "@dracula-cwa-weather-api-key" "")"
+
+    local api_key_file
+    api_key_file="$(get_tmux_option "@dracula-cwa-weather-api-key-file" "")"
+
+    if [[ -z "$api_key" && -r "$api_key_file" ]]; then
+        api_key="$(< "$api_key_file")"
+    fi
+
+    printf "%s" "$api_key"
+}
+
 get_cache_directory() {
     local dir
     dir="${XDG_CACHE_HOME:-$HOME/.cache}/tmux/dracula/cwa-weather"
@@ -157,7 +171,7 @@ is_valid_cache() {
 
 call_api() {
     local api_key
-    api_key="$(get_tmux_option "@dracula-cwa-weather-api-key" "")"
+    api_key="$(get_api_key)"
 
     local location_name
     location_name="$(get_tmux_option "@dracula-cwa-weather-location" "臺北市")"
