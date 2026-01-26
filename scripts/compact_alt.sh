@@ -27,7 +27,7 @@ main()
   # if width changed, set global var and reload
   if [[ "$narrow" != "$narrow_mode" ]]; then
     tmux set -g @dracula-narrow-mode $narrow
-    "$current_dir"/drcalu.sh
+    tmux source-file "$(get_tmux_option "@dracula-config-path" "$HOME/.config/tmux/tmux.conf")"
   fi
 
   # show widget info if verbose
