@@ -34,8 +34,6 @@ main()
   verbose=$(get_tmux_option "@dracula-compact-alt-verbose" false)
   if $verbose; then
     echo "$window_width - $narrow"
-  else
-    echo ""
   fi
   # storing the refresh rate in the variable RATE, default is 5
   RATE=$(get_tmux_option "@dracula-refresh-rate" 5)
