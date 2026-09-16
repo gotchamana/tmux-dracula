@@ -14,10 +14,14 @@ main() {
   eks_hide_arn=$(get_tmux_option "@dracula-kubernetes-eks-hide-arn" false)
   eks_extract_account=$(get_tmux_option "@dracula-kubernetes-eks-extract-account" false)
   hide_kubernetes_user=$(get_tmux_option "@dracula-kubernetes-hide-user" false)
+  hide_kubernetes_no_config=$(get_tmux_option "@dracula-kubernetes-hide-no-config" false)
   terraform_label=$(get_tmux_option "@dracula-terraform-label" "")
+  terraform_fork=$(get_tmux_option "@dracula-terraform-fork" "terraform")
+  terraform_hide_status=$(get_tmux_option "@dracula-terraform-hide" false)
   show_fahrenheit=$(get_tmux_option "@dracula-show-fahrenheit" true)
   show_location=$(get_tmux_option "@dracula-show-location" true)
   fixed_location=$(get_tmux_option "@dracula-fixed-location")
+  weather_hide_errors=$(get_tmux_option "@dracula-weather-hide-errors" false)
   show_powerline=$(get_tmux_option "@dracula-show-powerline" false)
   transparent_powerline_bg=$(get_tmux_option "@dracula-transparent-powerline-bg" false)
   show_flags=$(get_tmux_option "@dracula-show-flags" false)
@@ -40,6 +44,9 @@ main() {
   show_empty_plugins=$(get_tmux_option "@dracula-show-empty-plugins" true)
   left_pad=$(get_tmux_option "@dracula-left-pad" " ")
   right_pad=$(get_tmux_option "@dracula-right-pad" " ")
+
+  if [ "$left_pad" = false ]; then left_pad=""; fi
+  if [ "$right_pad" = false ]; then right_pad=""; fi
 
   narrow_mode=$(get_tmux_option "@dracula-narrow-mode" false)
   if $narrow_mode; then
@@ -164,7 +171,7 @@ main() {
   tmux set-option -g pane-border-style "fg=${gray}"
 
   # message styling
-  tmux set-option -g message-style "bg=${gray},fg=${white}"
+  tmux set-option -g message-style "bg=${gray},fg=${white},fill=${gray}"
 
   # status bar
   tmux set-option -g status-style "bg=${bg_color},fg=${white}"
@@ -303,11 +310,11 @@ main() {
 
     elif [ $plugin = "kubernetes-context" ]; then
       IFS=' ' read -r -a colors <<<$(get_tmux_option "@dracula-kubernetes-context-colors" "cyan dark_gray")
-      script="#($current_dir/kubernetes_context.sh $eks_hide_arn $eks_extract_account $hide_kubernetes_user $show_only_kubernetes_context $show_kubernetes_context_label)"
+      script="#($current_dir/kubernetes_context.sh $eks_hide_arn $eks_extract_account $hide_kubernetes_user $show_only_kubernetes_context $hide_kubernetes_no_config $show_kubernetes_context_label)"
 
     elif [ $plugin = "terraform" ]; then
       IFS=' ' read -r -a colors <<<$(get_tmux_option "@dracula-terraform-colors" "light_purple dark_gray")
-      script="#($current_dir/terraform.sh $terraform_label)"
+      script="#($current_dir/terraform.sh $terraform_fork $terraform_hide_status $terraform_label)"
 
     elif [ $plugin = "continuum" ]; then
       IFS=' ' read -r -a colors <<<$(get_tmux_option "@dracula-continuum-colors" "cyan dark_gray")
@@ -315,7 +322,7 @@ main() {
 
     elif [ $plugin = "weather" ]; then
       IFS=' ' read -r -a colors <<< $(get_tmux_option "@dracula-weather-colors" "orange dark_gray")
-      script="#($current_dir/weather_wrapper.sh $show_fahrenheit $show_location '$fixed_location')"
+      script="#($current_dir/weather_wrapper.sh $show_fahrenheit $show_location '$fixed_location' $weather_hide_errors)"
 
     elif [ $plugin = "time" ]; then
       IFS=' ' read -r -a colors <<< $(get_tmux_option "@dracula-time-colors" "dark_purple white")

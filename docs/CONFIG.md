@@ -25,6 +25,7 @@
   - [mac-player](#mac-player---up)
   - [mpc](#mpc---up)
   - [network](#network---up)
+  - [network-public-ip](#network-public-ip---up)
   - [network-bandwidth](#network-bandwidth---up)
   - [network-ping](#network-ping---up)
   - [network-vpn](#network-vpn---up)
@@ -91,14 +92,17 @@ set -g @dracula-show-empty-plugins false
 
 Set plugin padding
 Whilst the padding is one space per default, can be whatever you want it to be, whether that's whitespace or other characters.
-**If you want to remove any padding, you need to use a zero width space!**
 
 ```bash
 set -g @dracula-left-pad ' ° '
 set -g @dracula-right-pad ' ° '
-# no padding with zero width space
-set -g @dracula-left-pad '​'
-set -g @dracula-right-pad '​'
+```
+
+If you want to remove any padding, you can use `false` as a value.
+
+```bash
+set -g @dracula-left-pad false
+set -g @dracula-right-pad false
 ```
 
 ### Powerline - [up](#table-of-contents)
@@ -201,7 +205,7 @@ This widget provides information about the current charge of the battery, whethe
 Display any icon for the battery you'd like with:
 
 ```bash
-set -g @dracula-battery-label "♥ "
+set -g @dracula-battery-label "🦇 "
 ```
 
 to use nothing but nerdfont icons informing you about the current state, use the following,
@@ -217,8 +221,6 @@ these settings will introduce the following icons:
 - power is being drawn from AC, but the battery is neither charging nor discharging: ``
 - we were able to determine that the battery is charging/ discharging, but something about the percentage went wrong: `󰂃`
 - we don't know the status of the battery: ``
-
-
 
 if you have no battery and would like the widget to hide in that case, set the following:
 
@@ -357,7 +359,7 @@ set -g @dracula-cwd-max-chars "0"
 
 ### fossil - [up](#table-of-contents)
 
-**TODO**
+Fossil has no configurable options
 
 ### git - [up](#table-of-contents)
 
@@ -408,6 +410,11 @@ Show the current repository name in the status bar
 ```bash
 # default is false
 set -g @dracula-git-show-repo-name true
+```
+
+Limit the maximum length of git branch names displayed in the status bar. Truncation is disabled by default.
+```bash
+set -g @dracula-git-truncate-length 10
 ```
 
 ### gpu-info - [up](#table-of-contents)
@@ -520,27 +527,38 @@ set -g @dracula-kubernetes-context-label "Some Label"
 
 Hide user from the context string
 
-```
+```bash
 set -g @dracula-kubernetes-hide-user true
 ```
 
 Hide ARN (show only cluster name) - Available for EKS only (only available for cluster names that are ARNs)
 
-```
+```bash
 set -g @dracula-kubernetes-eks-hide-arn true
 ```
 
 Extract the account as a prefix to the cluster name - Available for EKS only (only available for cluster names that are ARNs)
 
-```
+```bash
 set -g @dracula-kubernetes-eks-extract-account true
+```
+
+Combine the above options and show only the Kubernetes Context
+
+```bash
+set -g @dracula-show-only-kubernetes-context true
+```
+
+Hide empty plugin when the `~/.kube/config` file is missing
+
+```bash
+set -g @dracula-kubernetes-hide-no-config true
 ```
 
 ### libreview - [up](#table-of-contents)
 
 This script retrieves and displays continuous glucose monitoring (CGM) data from the LibreView API.
 It caches the data to minimize API requests and displays the latest glucose level along with a trend indicator in a Tmux status bar.
-
 
 ### mac-player - [up](#table-of-contents)
 
@@ -645,6 +663,16 @@ Known issues:
 
 - If for some reason `iw` is only in the path for root and not the normal user, wifi connections will be considered ethernet connections.
 
+### network-public-ip - [up](#table-of-contents)
+
+This widget displays the public IP address you're using, by querying the public service `ifconfig.me`.
+
+Possible nerdfont settings for public IP info:
+
+```bash
+set -g @dracula-network-public-ip-label "󰖟 "
+```
+
 ### network-bandwidth - [up](#table-of-contents)
 
 This widget gives the currently used up and download speeds per second for one interface.
@@ -688,6 +716,11 @@ Set verbose to true in order to see the VPNs IP or name of Tailscale exit node.
 
 ```bash
 set -g @dracula-network-vpn-verbose true
+```
+
+Set the interface to check for VPN connection (default to `tun0`)
+```
+set -g @dracula-network-vpn-interface proton0
 ```
 
 Set the widgets label like so:
@@ -737,7 +770,6 @@ To limit the maximum length (0 means unlimited length):
 set -g @dracula-spotify-tui-max-len 30
 ```
 
-
 `set -g @dracula-refresh-rate 5` affects this widget
 
 ### spr - [up](#table-of-contents)
@@ -776,7 +808,6 @@ set -g @dracula-spr-remote-next "N"
 ```
 
 `set -g @dracula-refresh-rate 5` affects this widget
-
 
 ### ssh-session - [up](#table-of-contents)
 
@@ -837,10 +868,22 @@ This widget displays the system temperature.
 
 ### terraform - [up](#table-of-contents)
 
-**TODO**
+Add prefix label before workspace
 
-```
+```bash
 set -g @dracula-terraform-label ""
+```
+
+To use a Terraform fork like `tofu`
+
+```bash
+set -g @dracula-terraform-fork "tofu"
+```
+
+To hide the plugin when a `.terraform` isn't present
+
+```bash
+set -g @dracula-terraform-hide true
 ```
 
 `set -g @dracula-refresh-rate 5` affects this widget
@@ -921,6 +964,12 @@ Hide your location
 
 ```bash
 set -g @dracula-show-location false
+```
+Hide the weather plugin output when an error occurs (prints an empty string instead of "Weather Unavailable" / "Unknown Location").
+This is especially useful together with `set -g @dracula-show-empty-plugins false`.
+
+```bash
+set -g @dracula-weather-hide-errors true
 ```
 
 ### custom:script-name - [up](#table-of-contents)
