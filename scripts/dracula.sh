@@ -153,9 +153,9 @@ main() {
 
   # set the prefix + t time format
   if $show_military; then
-    tmux set-option -g clock-mode-style 24
+    tmux set-option -g clock-mode-style 24-with-seconds
   else
-    tmux set-option -g clock-mode-style 12
+    tmux set-option -g clock-mode-style 12-with-seconds
   fi
 
   # set length
